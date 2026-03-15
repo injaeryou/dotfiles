@@ -1,0 +1,13 @@
+[credential]
+	helper = store
+[user]
+	name = Injae Ryou
+	email = injaeryou@gmail.com
+[pull]
+	rebase = true
+[alias]
+	spull = "!f() { git stash && git pull && git stash pop; }; f"
+[init]
+	defaultBranch = main
+[merge]
+	ff = false
