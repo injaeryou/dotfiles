@@ -11,3 +11,5 @@
 	defaultBranch = main
 [merge]
 	ff = false
+[core]
+	excludesFile = ~/.gitignore_global
