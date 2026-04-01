@@ -12,4 +12,5 @@
 [merge]
 	ff = false
 [core]
+	editor = nano
 	excludesFile = ~/.gitignore_global

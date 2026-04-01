@@ -1,0 +1,2 @@
+# Exclude packages published within the last 14 days (supply chain security)
+exclude-newer = "14 days"
