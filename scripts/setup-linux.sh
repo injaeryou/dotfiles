@@ -50,6 +50,15 @@ for pkg in "${PACKAGES[@]}"; do
     fi
 done
 
+# ─── rtk (official install script) ───
+if ! command -v rtk &>/dev/null; then
+    info "Installing rtk..."
+    curl -fsSL https://raw.githubusercontent.com/rtk-ai/rtk/refs/heads/master/install.sh | sh
+    success "rtk installed"
+else
+    success "rtk already installed"
+fi
+
 # ─── uv (official install script) ───
 if ! command -v uv &>/dev/null; then
     info "Installing uv..."
