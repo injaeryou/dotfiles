@@ -38,9 +38,8 @@ PACKAGES=(
 # ─── rtk (download pre-built binary) ───
 if ! command -v rtk &>/dev/null; then
     info "Installing rtk..."
-    local RTK_DIR="$HOME/.local/bin"
+    RTK_DIR="$HOME/.local/bin"
     mkdir -p "$RTK_DIR"
-    local RTK_URL
     RTK_URL="$(curl -fsSL https://api.github.com/repos/rtk-ai/rtk/releases/latest | grep -o 'https://.*rtk-x86_64-pc-windows-msvc.zip')"
     if [ -n "$RTK_URL" ]; then
         curl -fsSL "$RTK_URL" -o /tmp/rtk.zip
