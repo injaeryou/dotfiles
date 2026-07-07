@@ -2,4 +2,6 @@
 .claude
 .DS_Store
 .serena
+.playwright-mcp
+.wrangler
 
