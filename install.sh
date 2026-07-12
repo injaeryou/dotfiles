@@ -98,6 +98,45 @@ setup_npm() {
     link_file "$DOTFILES_DIR/npm/.npmrc" "$HOME/.npmrc"
 }
 
+# ─── Claude Code ───
+setup_claude() {
+    info "Setting up Claude Code..."
+    local src="$DOTFILES_DIR/claude/settings.json"
+    local dst="$HOME/.claude/settings.json"
+
+    mkdir -p "$HOME/.claude"
+
+    if [ ! -f "$dst" ]; then
+        cp "$src" "$dst"
+        success "Installed: $dst"
+        return
+    fi
+
+    # Merge repo settings into the machine file. Repo values win on
+    # conflict; dicts merge recursively; machine-local keys (plugins,
+    # hooks, model, ...) are preserved and never enter the repo.
+    if python3 - "$dst" "$src" <<'EOF'
+import json, sys
+dst, src = sys.argv[1], sys.argv[2]
+
+def merge(base, over):
+    out = dict(base)
+    for k, v in over.items():
+        out[k] = merge(out[k], v) if isinstance(v, dict) and isinstance(out.get(k), dict) else v
+    return out
+
+merged = merge(json.load(open(dst)), json.load(open(src)))
+with open(dst, "w") as f:
+    json.dump(merged, f, indent=2, ensure_ascii=False)
+    f.write("\n")
+EOF
+    then
+        success "Merged repo settings into $dst"
+    else
+        warn "Merge failed (invalid JSON in $dst?). Left untouched."
+    fi
+}
+
 # ─── rtk ───
 setup_rtk() {
     if ! command -v rtk &>/dev/null; then
@@ -137,6 +176,7 @@ main() {
     fi
     setup_uv
     setup_npm
+    setup_claude
     setup_os_specific
     setup_rtk
 
