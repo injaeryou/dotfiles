@@ -106,6 +106,8 @@ setup_claude() {
 
     mkdir -p "$HOME/.claude"
 
+    link_file "$DOTFILES_DIR/claude/CLAUDE.md" "$HOME/.claude/CLAUDE.md"
+
     if [ ! -f "$dst" ]; then
         cp "$src" "$dst"
         success "Installed: $dst"
