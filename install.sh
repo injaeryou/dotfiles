@@ -28,6 +28,12 @@ detect_os() {
 OS="$(detect_os)"
 info "Detected OS: $OS"
 
+# Git Bash의 ln -s는 기본적으로 파일을 복사한다. 네이티브 심링크를 강제
+# (Developer Mode 또는 관리자 권한 필요).
+if [ "$OS" = "windows" ]; then
+    export MSYS=winsymlinks:nativestrict
+fi
+
 # ─── Create symlink ───
 link_file() {
     local src="$1"
@@ -117,7 +123,21 @@ setup_claude() {
     # Merge repo settings into the machine file. Repo values win on
     # conflict; dicts merge recursively; machine-local keys (plugins,
     # hooks, model, ...) are preserved and never enter the repo.
-    if python3 - "$dst" "$src" <<'EOF'
+    # Windows Store의 python3.exe 별칭은 실행이 안 되므로, 실제로
+    # 동작하는 인터프리터를 골라낸다.
+    local py="" candidate
+    for candidate in python3 python; do
+        if "$candidate" -c 'pass' &>/dev/null; then
+            py="$candidate"
+            break
+        fi
+    done
+    if [ -z "$py" ]; then
+        warn "python not found. Skipping settings.json merge."
+        return
+    fi
+
+    if "$py" - "$dst" "$src" <<'EOF'
 import json, sys
 dst, src = sys.argv[1], sys.argv[2]
 
@@ -127,8 +147,9 @@ def merge(base, over):
         out[k] = merge(out[k], v) if isinstance(v, dict) and isinstance(out.get(k), dict) else v
     return out
 
-merged = merge(json.load(open(dst)), json.load(open(src)))
-with open(dst, "w") as f:
+merged = merge(json.load(open(dst, encoding="utf-8")),
+               json.load(open(src, encoding="utf-8")))
+with open(dst, "w", encoding="utf-8") as f:
     json.dump(merged, f, indent=2, ensure_ascii=False)
     f.write("\n")
 EOF
