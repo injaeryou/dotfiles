@@ -203,11 +203,8 @@
       "Bash(uv venv:*)",
       "Bash(uvx:*)",
       "Bash(wget:*)",
-      "Edit",
       "Read(**/.env)",
       "Read(**/.env.*)",
-      "WebFetch",
-      "Write",
       "mcp__playwright__browser_click",
       "mcp__playwright__browser_close",
       "mcp__playwright__browser_drag",
@@ -299,6 +296,9 @@
       "Read(~/.gnupg/**)",
       "Read(~/.ssh/**)",
       "mcp__playwright__browser_run_code_unsafe"
+    ],
+    "additionalDirectories": [
+      "~/Personal/wiki"
     ]
   }
 }
