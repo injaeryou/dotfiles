@@ -239,7 +239,6 @@
     "deny": [
       "Bash(* | base64 -d | bash:*)",
       "Bash(* | base64 -d | sh:*)",
-      "Bash(:(){ :|:& };:*)",
       "Bash(bash -i >& /dev/tcp/*)",
       "Bash(chmod -R 777:*)",
       "Bash(chmod 777:*)",
