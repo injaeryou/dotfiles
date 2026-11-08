@@ -35,25 +35,6 @@ PACKAGES=(
     uv
 )
 
-# ─── rtk (download pre-built binary) ───
-if ! command -v rtk &>/dev/null; then
-    info "Installing rtk..."
-    RTK_DIR="$HOME/.local/bin"
-    mkdir -p "$RTK_DIR"
-    RTK_URL="$(curl -fsSL https://api.github.com/repos/rtk-ai/rtk/releases/latest | grep -o 'https://.*rtk-x86_64-pc-windows-msvc.zip')"
-    if [ -n "$RTK_URL" ]; then
-        curl -fsSL "$RTK_URL" -o /tmp/rtk.zip
-        unzip -o /tmp/rtk.zip -d "$RTK_DIR"
-        rm -f /tmp/rtk.zip
-        success "rtk installed to $RTK_DIR"
-        warn "Make sure $RTK_DIR is in your PATH"
-    else
-        warn "rtk download failed - install manually from https://github.com/rtk-ai/rtk/releases"
-    fi
-else
-    success "rtk already installed"
-fi
-
 # ─── psmux (tmux alternative for Windows) ───
 info "Installing psmux..."
 if ! powershell -Command "Get-Module -ListAvailable -Name psmux" &>/dev/null 2>&1; then

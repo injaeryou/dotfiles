@@ -160,21 +160,6 @@ EOF
     fi
 }
 
-# ─── rtk ───
-setup_rtk() {
-    if ! command -v rtk &>/dev/null; then
-        warn "rtk not found. It will be installed by OS-specific setup."
-        return
-    fi
-
-    info "Setting up rtk..."
-    rtk init -g
-    rtk init -g --gemini
-    rtk init -g --codex
-    rtk init -g --agent cursor
-    success "rtk initialized (claude, gemini, codex, cursor)"
-}
-
 # ─── OS-specific setup ───
 setup_os_specific() {
     local script="$DOTFILES_DIR/scripts/setup-${OS}.sh"
@@ -201,7 +186,6 @@ main() {
     setup_npm
     setup_claude
     setup_os_specific
-    setup_rtk
 
     echo ""
     success "All done!"

@@ -27,7 +27,6 @@ PACKAGES=(
     tmux
     nano
     uv
-    rtk
 )
 
 info "Installing packages..."
