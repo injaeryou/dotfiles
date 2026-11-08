@@ -27,6 +27,10 @@ detect_os() {
 
 OS="$(detect_os)"
 info "Detected OS: $OS"
+if [ "$OS" = "unknown" ]; then
+    error "Unsupported OS: $(uname -s)"
+    exit 1
+fi
 
 # Git Bash의 ln -s는 기본적으로 파일을 복사한다. 네이티브 심링크를 강제
 # (Developer Mode 또는 관리자 권한 필요).
@@ -109,6 +113,7 @@ setup_claude() {
     info "Setting up Claude Code..."
     local src="$DOTFILES_DIR/claude/settings.json"
     local dst="$HOME/.claude/settings.json"
+    local snapshot="$HOME/.claude/.dotfiles-settings.json"
 
     mkdir -p "$HOME/.claude"
 
@@ -116,13 +121,14 @@ setup_claude() {
 
     if [ ! -f "$dst" ]; then
         cp "$src" "$dst"
+        cp "$src" "$snapshot"
         success "Installed: $dst"
         return
     fi
 
-    # Merge repo settings into the machine file. Repo values win on
-    # conflict; dicts merge recursively; machine-local keys (plugins,
-    # hooks, model, ...) are preserved and never enter the repo.
+    # settings.json is merged, not symlinked: Claude Code writes
+    # machine-local keys (plugins, hooks, model, ...) into it, and those
+    # must not enter the repo. Rules live in scripts/merge_settings.py.
     # Windows Store의 python3.exe 별칭은 실행이 안 되므로, 실제로
     # 동작하는 인터프리터를 골라낸다.
     local py="" candidate
@@ -133,31 +139,12 @@ setup_claude() {
         fi
     done
     if [ -z "$py" ]; then
-        warn "python not found. Skipping settings.json merge."
-        return
+        error "python not found. Cannot merge repo settings into $dst."
+        exit 1
     fi
 
-    if "$py" - "$dst" "$src" <<'EOF'
-import json, sys
-dst, src = sys.argv[1], sys.argv[2]
-
-def merge(base, over):
-    out = dict(base)
-    for k, v in over.items():
-        out[k] = merge(out[k], v) if isinstance(v, dict) and isinstance(out.get(k), dict) else v
-    return out
-
-merged = merge(json.load(open(dst, encoding="utf-8")),
-               json.load(open(src, encoding="utf-8")))
-with open(dst, "w", encoding="utf-8") as f:
-    json.dump(merged, f, indent=2, ensure_ascii=False)
-    f.write("\n")
-EOF
-    then
-        success "Merged repo settings into $dst"
-    else
-        warn "Merge failed (invalid JSON in $dst?). Left untouched."
-    fi
+    "$py" "$DOTFILES_DIR/scripts/merge_settings.py" "$dst" "$src" "$snapshot"
+    success "Merged repo settings into $dst"
 }
 
 # ─── OS-specific setup ───
