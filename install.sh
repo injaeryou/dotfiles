@@ -118,6 +118,21 @@ setup_claude() {
     mkdir -p "$HOME/.claude"
 
     link_file "$DOTFILES_DIR/claude/CLAUDE.md" "$HOME/.claude/CLAUDE.md"
+    link_file "$DOTFILES_DIR/claude/rules" "$HOME/.claude/rules"
+    # ~/.claude/skills holds plugin/other skills, so link each skill dir.
+    local skill skill_dst
+    for skill in "$DOTFILES_DIR"/claude/skills/*/; do
+        [ -d "$skill" ] || continue  # glob matched nothing
+        skill="${skill%/}"
+        skill_dst="$HOME/.claude/skills/$(basename "$skill")"
+        # link_file's in-place backup would stay inside skills/ and load
+        # as a duplicate skill, so refuse instead.
+        if [ -e "$skill_dst" ] && [ ! -L "$skill_dst" ]; then
+            error "$skill_dst exists and is not a symlink. Move it out of ~/.claude/skills and re-run."
+            exit 1
+        fi
+        link_file "$skill" "$skill_dst"
+    done
 
     if [ ! -f "$dst" ]; then
         cp "$src" "$dst"
